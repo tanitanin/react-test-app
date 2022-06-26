@@ -1,140 +1,168 @@
 import './App.css';
 import React from 'react';
-import Rect from './Rect';
+import usePersist from './Persist';
 
-let theme = {
-  light:{
-    styles: {
-      backgroundColor: "#f0f9ff",
-      color: "#00f",
-    },
-    head: "bg-promary text-black display-4 mb-4",
-    alert: "alert alert-primary my-3",
-    text: "text-primary m-3",
-    foot: "py-4",
-  },
-  dark:{
-    styles: {
-      backgroundColor: "#336",
-      color: "#eef",
-    },
-    head: "bg-promary text-white display-4 mb-4",
-    alert: "alert alert-primary my-3",
-    text: "text-primary m-3",
-    foot: "py-4",
-  },
-};
-const ThemeContext = React.createContext(theme.light);
+function AlertMessage(props) {
+  const [name, setName] = React.useState("");
+  const [mail, setMail] = React.useState("");
+  const [age, setAge] = React.useState("");
+  const [mydata, setMyData] = usePersist("mydata", null);
+  
+  const changeName = (e)=>{
+    setName(e.target.value);
+  };
+  const changeMail = (e)=>{
+    setMail(e.target.value);
+  };
+  const changeAge = (e)=>{
+    setAge(e.target.value);
+  };
+  const doSubmit = (e)=>{
+    const data = {name: name, mail: mail, age: age};
+    setMyData(data);
+  };
 
-class App extends React.Component {
-  input = "";
-  static contextType = ThemeContext;
+  return (
+    <div className='alert alert-primary h5 text-primary'>
+      <h5>{props.alert}</h5>
+      <h5>{JSON.stringify(mydata)}</h5>
+      <table className='table h6'>
+        <tbody>
+          <tr><th>Name</th><td>{name}</td></tr>
+          <tr><th>Mail</th><td>{mail}</td></tr>
+          <tr><th>Age</th><td>{age}</td></tr>
+        </tbody>
+      </table>
+      <div className=''>
+        <div className='form-group'>
+          <label>Name:</label>
+          <input type='text' className='form-control' onChange={changeName} />
+        </div>
+        <div className='form-group'>
+          <label>Mail:</label>
+          <input type='text' className='form-control' onChange={changeMail} />
+        </div>
+        <div className='form-group'>
+          <label>Age:</label>
+          <input type='text' className='form-control' onChange={changeAge} />
+        </div>
+        <button className='btn btn-primary' value='Click' onClick={doSubmit}>
+          Click
+        </button>
+      </div>
+    </div>
+  );
+}
 
-  constructor(props) {
-    super();
-    this.title = props.title;
-    this.message = props.message;
-    this.state = {
-      counter: 0,
-      msg: "Hello",
-      flg: true,
-      max: 10,
-    };
-    this.doAction = this.doAction.bind(this);
-    this.doCheck = this.doCheck.bind(this);
+function CardMessage(props) {
+  const [counter, setCounter] = useCounter();
+  const incrementCount = ()=>{
+    setCounter();
+    props.setCard("card counter: " + counter + " count.");
+  };
+  return(
+    <div className='card p-3 h5 border-primary text-center'>
+      <h5>{props.card}</h5>
+      <button className='btn btn-primary' onClick={incrementCount}>
+        Click
+      </button>
+    </div>
+  );
+}
+
+function Message(props) {
+  return (
+    <div className='alert alert-primary h5 text-primary'>
+      <h5>{props.msg}</h5>
+    </div>
+  );
+}
+
+function useCounter() {
+  const [num, setNum] = React.useState(0);
+  const count = () => {
+    setNum(num + 1);
   }
-  doAction(event) {
-    this.setState({
-      counter: this.state.counter + 1,
-      msg: "*** count: " + this.state.counter + ' ***',
-      flg: !this.state.flg
-    });
+  return [num, count];
+}
+
+function App() {
+  const [message] = React.useState("Welcome to Hooks.");
+  const [count, setCount] = React.useState(0);
+  const [flag, setFlag] = React.useState(false);
+  const [alertMsg, setAlertMsg] = React.useState("This is alert message!");
+  const [cardMsg, setCardMsg] = React.useState("This is card message!");
+
+  const [val, setVal] = React.useState(0);
+  const [msg, setMsg] = React.useState("set value...");
+
+  const doClick=(e)=>{
+    setCount(count + 1);
+  };
+  const changeFlag=(e)=>{
+    setFlag(e.target.checked);
+  };
+  const changeAlertMsg=(e)=>{
+    setAlertMsg(e.target.value);
+  };
+
+  const changeVal = (e)=>{
+    setVal(e.target.value);
   }
-  doCheck(event) {
-    alert(event.target.value + " is too long. max length is " + this.state.max + "charactors.");
-  }
-  render() {
-    return (
-      <div className="App" style={this.context.styles}>
-        <h1 className={this.context.head}>React</h1>
-        <div className='container'>
-          <p className='subtitle'>{this.title}</p>
-          <p>{this.message}</p>
-          <p className='alert alert-dark'>{this.props.msg}</p>
-          <Rect x="200" y="200" w="200" h="200" c="#6ff9" r="25" />
-          <Rect x="300" y="300" w="200" h="200" c="#f6f9" r="75" />
-          <Rect x="400" y="400" w="200" h="200" c="#6669" r="100" />
-          {this.state.flg ?
-            <div className='alert alert-primary text-right'>
-              <p className='h5'>{this.state.msg}</p>
-            </div>
-          :
-            <div className='alert alert-warning text-left'>
-              <p className='h5'>{this.state.msg}</p>
-            </div>
-          }
-          <div className='text-center'>
-            <button
-              className='btn btn-primary'
-              onClick={this.doAction}>
+  React.useEffect(() => {
+      let total = 0;
+      for (let i=0; i<=val; i++) {
+        total += i;
+      }
+      setMsg("total: " + total + ".");
+  }, [val]);
+
+  return (
+    <div>
+      <h1 className='bg-primary text-white display-4'>React</h1>
+      <div className='container'>
+        <div className='alert alert-primary text-center'>
+          <p>{message}</p>
+        </div>
+        {flag?
+          <div>
+            <p className='h5 mb-3'>{count}</p>
+            <button className='btn btn-primary' onClick={doClick}>
               Click
             </button>
           </div>
+        :
+          <div>
+            <p className='h5 mb-3 text-left text-primary'>{count}</p>
+            <button className='btn btn-primary' onClick={doClick}>
+              Click
+            </button>
+          </div>
+        }
+        <div>
+          <input type='checkbox' className='form-check-input' id='check1' onChange={changeFlag} />
+          <label className='form-check-label' htmlFor='check1'>
+            Change form style.
+          </label>
+        </div>
+        <AlertMessage alert={alertMsg} setAlert={setAlertMsg} />
+        <CardMessage card={cardMsg} setCard={setCardMsg} />
+        <div>
+          <label>input:</label>
+          <input type='text' onChange={changeAlertMsg}/>
         </div>
         <div>
-          <Title />
-          <Message maxlength={this.state.max} onCheck={this.doCheck} />
+          <p>{cardMsg}</p>
+          <p>{alertMsg}</p>
         </div>
-        <div className={this.context.foot}></div>
-      </div>
-    )
-  }
-}
-
-class Title extends React.Component {
-  static contextType = ThemeContext;
-
-  render() {
-    return (
-      <div className={this.context.alert}>
-        <h2 style={this.context.styles}>{this.props.title}</h2>
-      </div>
-    );
-  }
-}
-
-class Message extends React.Component {
-  static contextType = ThemeContext;
-
-  li = {
-    fontSize: "14pt",
-    fontWeight: "bold",
-    color: "#090",
-  };
-
-  constructor(props) {
-    super(props);
-    this.doChange = this.doChange.bind(this);
-  }
-
-  doChange(e) {
-    if (e.target.value.length > this.props.maxlength) {
-      this.props.onCheck(e);
-      e.target.value = e.target.value.substr(0, this.props.maxlength);
-    }
-  }
-
-  render() {
-    return (
-      <div style={this.context.styles}>
-        <p className={this.context.text}>{this.props.value}</p>
-        <div className="form-group">
-          <label>input:</label>
-          <input type="text" className="form-control" onChange={this.doChange} />
+        <Message msg={msg} />
+        <div className='form-group'>
+          <label>number:</label>
+          <input type='number' className='form-control' onChange={changeVal}/>
         </div>
       </div>
-    );
-  }
+    </div>
+  )
 }
 
 export default App;

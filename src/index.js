@@ -10,6 +10,7 @@ root.render(
     <App
       title="This is a sample component."
       message="Message is here."
+      msg="Hello App."
     />
   </React.StrictMode>
 );
